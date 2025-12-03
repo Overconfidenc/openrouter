@@ -1,3 +1,6 @@
+// transform.js
+import { getSchedule } from "./converter.js";
+
 function formatEmployee(employees) {
   if (!employees || employees.length === 0) return "—";
   const emp = employees[0];
@@ -24,7 +27,13 @@ function formatAuditories(auditories) {
   return auditories.join(', ');
 }
 
-export function transformSchedule(fullSchedule) {
+export async function transformSchedule(numberInput) {
+  const fullSchedule = await getSchedule(numberInput);
+  
+  if (!fullSchedule || !fullSchedule.studentGroupDto) {
+      throw new Error("Группа не найдена или неверная структура ответа");
+  }
+
   const groupDto = fullSchedule.studentGroupDto;
   const groupInfo = {
     group: groupDto.name,
@@ -38,7 +47,6 @@ export function transformSchedule(fullSchedule) {
   const regularSchedule = {};
   const oneTimeEvents = [];
 
-  
   for (const dayName in fullSchedule.schedules) {
     regularSchedule[dayName] = [];
     for (const lesson of fullSchedule.schedules[dayName]) {
@@ -62,7 +70,6 @@ export function transformSchedule(fullSchedule) {
       }
     }
   }
-  
   
   for (const examEvent of fullSchedule.exams) {
      const simplifiedEvent = {
